@@ -1,0 +1,186 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.lang.Integer;
+/*
+default void forEach(Consumer<? super T> action) {
+        Objects.requireNonNull(action);
+        for (T t : this) {
+            action.accept(t);
+        }
+    }
+*/
+
+public class Java8ForEachExample {
+
+	public static void main(String[] args) {
+		
+		//creating sample Collection
+		List<Integer> myList = new ArrayList<Integer>();
+		for(int i=0; i<10; i++) myList.add(i);
+		
+		//traversing using Iterator
+		Iterator<Integer> it = myList.iterator();
+		while(it.hasNext()){
+			Integer i = it.next();
+			System.out.println("Iterator Value::"+i);
+		}
+		
+		//traversing through forEach method of Iterable with anonymous class
+		myList.forEach(new Consumer<Integer>() {
+
+			public void accept(Integer t) {
+				System.out.println("forEach anonymous class Value::"+t);
+			}
+
+		});
+		
+		//traversing with Consumer interface implementation
+		MyConsumer action = new MyConsumer();
+		myList.forEach(action);
+		
+	}
+
+}
+
+//Consumer implementation that can be reused
+class MyConsumer implements Consumer<Integer>{
+
+	public void accept(Integer t) {
+		System.out.println("Consumer impl Value::"+t);
+	}
+
+
+}
+=============================================
+If you notice above interfaces code, you will notice
+ @FunctionalInterface annotation. Functional interfaces are
+ new concept introduced in Java 8. An interface with exactly 
+one abstract method becomes Functional Interface. We don’t need 
+to use @FunctionalInterface annotation to mark an interface as 
+Functional Interface. @FunctionalInterface annotation is a 
+facility to avoid accidental addition of abstract methods 
+in the functional interfaces. You can think of it like @Override
+ annotation and it’s best practice to use it. java.lang.Runnable
+ with single abstract method run() is a great example of functional 
+interface.
+
+
+
+@FunctionalInterface
+public interface Interface1 {
+
+	void method1(String str);
+	
+	default void log(String str){
+		System.out.println("I1 logging::"+str);
+	}
+	
+	static void print(String str){
+		System.out.println("Printing "+str);
+	}
+	
+	//trying to override Object method gives compile time error as
+	//"A default method cannot override a method from java.lang.Object"
+	
+//	default String toString(){
+//		return "i1";
+//	}
+	
+}
+@FunctionalInterface
+public interface Interface2 {
+
+	void method2();
+	
+	default void log(String str){
+		System.out.println("I2 logging::"+str);
+	}
+
+}
+public class MyClass implements Interface1, Interface2 {
+
+	@Override
+	public void method2() {
+	}
+
+	@Override
+	public void method1(String str) {
+	}
+
+	//MyClass won't compile without having it's own log() implementation
+	@Override
+	public void log(String str){
+		System.out.println("MyClass logging::"+str);
+		Interface1.print("abc");
+	}
+	
+}
+===========================================
+java Stream API for Bulk Data Operations on Collections
+
+A new java.util.stream has been added in Java 8 to perform
+ filter/map/reduce like operations with the collection. 
+Stream API will allow sequential as well as parallel execution. 
+This is one of the best feature for me because I work a lot with
+ Collections and usually with Big Data, we need to filter out them
+ based on some conditions.
+
+Collection interface has been extended with stream() and 
+parallelStream() default methods to get the Stream for sequential
+ and parallel execution. Let’s see their usage with simple example.
+=======================================================
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Stream;
+
+public class StreamExample {
+
+	public static void main(String[] args) {
+		
+	List<Integer> myList = new ArrayList<>();
+	for(int i=0; i<100; i++) myList.add(i);
+		
+	//sequential stream
+	Stream<Integer> sequentialStream = myList.stream();
+		
+	//parallel stream
+	Stream<Integer> parallelStream = myList.parallelStream();
+		
+	//using lambda with Stream API, filter example
+	Stream<Integer> highNums = 
+		parallelStream.filter(p -> p > 90);
+	//using lambda in forEach
+	highNums.forEach(p -> System.out.println("High Nums parallel="+p));
+		
+	Stream<Integer> highNumsSeq = sequentialStream.filter(p -> p > 90);
+	highNumsSeq.forEach(p -> System.out.println("High Nums sequential="+p));
+
+	}
+}
+==============================================================
+Time API
+java.time Package: This is the base package of new Java Date Time API.
+ All the major base classes are part of this package, such as LocalDate,
+ LocalTime, LocalDateTime, Instant, Period, Duration etc. 
+All of these classes are immutable and thread safe. Most of the times, 
+these classes will be sufficient for handling common requirements.
+
+java.time.chrono Package: This package defines generic APIs for non ISO 
+calendar systems. We can extend AbstractChronology class to create our 
+own calendar system.
+
+java.time.format Package: This package contains classes used for formatting 
+and parsing date time objects. Most of the times, we would not be directly
+ using them because principle classes in java.time package provide formatting
+ and parsing methods.
+
+java.time.temporal Package: This package contains temporal objects and we can 
+use it for find out specific date or time related to date/time object. 
+For example, we can use these to find out the first or last day of the month.
+ You can identify these methods easily because they always have format 
+“withXXX”.
+
+java.time.zone Package: This package contains classes for supporting different
+ time zones and their rules.
